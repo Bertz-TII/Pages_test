@@ -43,15 +43,17 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Clone Docs
         run: |
-          git clone -b dev --depth 1 https://${{ secrets.SMDDOCUMENTATIONTOKEN }}@github.com/Bertz-TII/SMDExplorer-Documentation.git
+          GIT_LFS_SKIP_SMUDGE=1 git clone -b dev --depth 1 https://${{ secrets.SMDDOCUMENTATIONTOKEN }}@github.com/Bertz-TII/SMDExplorer-Documentation.git
           python -m pip install --upgrade pip
           cd SMDExplorer-Documentation
+          ls
           pip install -r requirements.txt
           
       - name: Build HTML
         # Outputs to the './_site' directory by default
         run: |
           ls
+          cd SMDExplorer-Documentation
           sphinx-build -E -a -b html -D language=en -t includevideo -D html_static_path=_static docs/source/ docs/build/html_en
 
   #     - name: Upload artifact
