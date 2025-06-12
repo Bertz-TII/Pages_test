@@ -54,13 +54,13 @@ jobs:
         run: |
           ls
           cd SMDExplorer-Documentation
-          sphinx-build -E -a -b html -D language=en -t includevideo -D html_static_path=_static docs/source/ docs/build/html_en
+          python docs/build.py
 
       - name: Upload artifact
         # Automatically uploads an artifact from the './_site' directory by default
         uses: actions/upload-pages-artifact@v3
         with:
-          path: SMDExplorer-Documentation/docs/build/html_en
+          path: SMDExplorer-Documentation/docs/build/html
 
   # Deployment job
   deploy:
