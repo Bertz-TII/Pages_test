@@ -50,7 +50,7 @@ jobs:
           npm install -g @mermaid-js/mermaid-cli
           cd SMDExplorer-Documentation/docs/source
           
-          sphinx-build -E -b latex -D language=en . ./build/tex_en
+          sphinx-build -E -b latex -D language=en . ../build/tex_en
           cd ../build/tex_en
           ls
           
