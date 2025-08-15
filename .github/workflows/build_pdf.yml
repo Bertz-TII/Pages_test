@@ -46,11 +46,11 @@ jobs:
       - name: build_tex
         run: |
           sudo apt-get install texlive-extra-utils
-          sudo sysctl kernel.unprivileged_userns_clone=1
+          
           
           npm install -g @mermaid-js/mermaid-cli
           cd SMDExplorer-Documentation
-          sphinx-build -E -b latex -D language=en ./docs/source/ ./docs/build/tex_en
+          sphinx-build -E -b latex -D language=en -D mermaid_params=['-p' 'puppeteer-config.json'] ./docs/source/ ./docs/build/tex_en
           cd docs/build/tex_en
           ls
           
@@ -60,6 +60,6 @@ jobs:
         with:
           name: tex
           path: |
-            ./docs/build/tex_en
+            ./SMDExplorer-Documentation/docs/build/tex_en
           overwrite: true
           retention-days: 1
