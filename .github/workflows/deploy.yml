@@ -43,8 +43,8 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Clone Docs
         run: |
-          # GIT_LFS_SKIP_SMUDGE=1 git clone -b dev --depth 1 https://${{ secrets.SMDDOCUMENTATIONTOKEN }}@github.com/Bertz-TII/SMDExplorer-Documentation.git
-          git clone -b dev --depth 1 https://${{ secrets.SMDDOCUMENTATIONTOKEN }}@github.com/Bertz-TII/SMDExplorer-Documentation.git
+          GIT_LFS_SKIP_SMUDGE=1 git clone -b dev --depth 1 https://${{ secrets.SMDDOCUMENTATIONTOKEN }}@github.com/Bertz-TII/SMDExplorer-Documentation.git
+          # git clone -b dev --depth 1 https://${{ secrets.SMDDOCUMENTATIONTOKEN }}@github.com/Bertz-TII/SMDExplorer-Documentation.git
 
           python -m pip install --upgrade pip
           cd SMDExplorer-Documentation
@@ -63,10 +63,14 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: SMDExplorer-Documentation/docs/build/html
-
+      - uses: actions/setup-node@v4
+        with:
+          node-version: latest
+          
       - name: build_tex
         run: |
           sudo apt-get install texlive-extra-utils
+          npm install -g @mermaid-js/mermaid-cli
           cd SMDExplorer-Documentation
           sphinx-build -E -b latex -D language=en ./docs/source/ ./docs/build/tex_en
           cd ./docs/build/text_en
