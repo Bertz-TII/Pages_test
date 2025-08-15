@@ -47,12 +47,11 @@ jobs:
         run: |
           sudo apt-get install texlive-extra-utils
           
-          
           npm install -g @mermaid-js/mermaid-cli
-          cd SMDExplorer-Documentation
-          ls
-          sphinx-build -E -b latex -D language=en ./docs/source/ ./docs/build/tex_en
-          cd docs/build/tex_en
+          cd SMDExplorer-Documentation/docs/source
+          
+          sphinx-build -E -b latex -D language=en . ./.build/tex_en
+          cd ../build/tex_en
           ls
           
       - name: Upload Artifact
