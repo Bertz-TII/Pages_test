@@ -1,0 +1,52 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# Sample workflow for building and deploying a Jekyll site to GitHub Pages
+name: Deploy HTML site to Pages
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+
+jobs:
+  # Build job
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+          # cache: 'pip'
+      - name: Clone Docs
+        run: |
+          GIT_LFS_SKIP_SMUDGE=1 git clone -b dev --depth 1 https://${{ secrets.SMDDOCUMENTATIONTOKEN }}@github.com/Bertz-TII/SMDExplorer-Documentation.git
+          # git clone -b dev --depth 1 https://${{ secrets.SMDDOCUMENTATIONTOKEN }}@github.com/Bertz-TII/SMDExplorer-Documentation.git
+
+          python -m pip install --upgrade pip
+          cd SMDExplorer-Documentation
+          ls
+          pip install -r requirements.txt
+       
+      - uses: actions/setup-node@v4
+        with:
+          node-version: latest
+          
+      - name: build_tex
+        run: |
+          sudo apt-get install texlive-extra-utils
+          npm install -g @mermaid-js/mermaid-cli
+          cd SMDExplorer-Documentation
+          sphinx-build -E -b latex -D language=en ./docs/source/ ./docs/build/tex_en
+          ls
+          cd docs/build/text_en
+          ls
