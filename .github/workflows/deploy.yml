@@ -50,7 +50,7 @@ jobs:
           cd SMDExplorer-Documentation
           ls
           pip install -r requirements.txt
-          
+       
       - name: Build HTML
         # Outputs to the './_site' directory by default
         run: |
@@ -63,6 +63,14 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: SMDExplorer-Documentation/docs/build/html
+
+      - name: build_tex
+        run: |
+          sudo apt-get install texlive-extra-utils
+          cd SMDExplorer-Documentation
+          sphinx-build -E -b latex -D language=en ./docs/source/ ./docs/build/tex_en
+          cd ./docs/build/text_en
+          ls
 
   # Deployment job
   deploy:
