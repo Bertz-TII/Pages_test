@@ -4,13 +4,15 @@
 # documentation.
 
 # Sample workflow for building and deploying a Jekyll site to GitHub Pages
-name: Deploy HTML site to Pages
+name: Build PDF
 
 on:
   # Runs on pushes targeting the default branch
-  push:
-    branches: ["main"]
-
+  # push:
+  #   branches: ["main"]
+  # pull_request:
+  #   branches:
+  #     - main
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -29,8 +31,8 @@ jobs:
           # cache: 'pip'
       - name: Clone Docs
         run: |
-          GIT_LFS_SKIP_SMUDGE=1 git clone -b dev --depth 1 https://${{ secrets.SMDDOCUMENTATIONTOKEN }}@github.com/Bertz-TII/SMDExplorer-Documentation.git
-          # git clone -b dev --depth 1 https://${{ secrets.SMDDOCUMENTATIONTOKEN }}@github.com/Bertz-TII/SMDExplorer-Documentation.git
+          # GIT_LFS_SKIP_SMUDGE=1 git clone -b dev --depth 1 https://${{ secrets.SMDDOCUMENTATIONTOKEN }}@github.com/Bertz-TII/SMDExplorer-Documentation.git
+          git clone -b dev --depth 1 https://${{ secrets.SMDDOCUMENTATIONTOKEN }}@github.com/Bertz-TII/SMDExplorer-Documentation.git
 
           python -m pip install --upgrade pip
           cd SMDExplorer-Documentation
@@ -44,9 +46,32 @@ jobs:
       - name: build_tex
         run: |
           sudo apt-get install texlive-extra-utils
+          
           npm install -g @mermaid-js/mermaid-cli
-          cd SMDExplorer-Documentation
-          sphinx-build -E -b latex -D language=en ./docs/source/ ./docs/build/tex_en
-          ls
-          cd docs/build/text_en
-          ls
+          cd SMDExplorer-Documentation/docs/source
+          
+          sphinx-build -E -b latex -D language=en -D latex_engine=lualatex . ../build/tex_en
+          sphinx-build -E -b latex -D language=ja -D latex_engine=uplatex . ../build/tex_ja
+
+      - uses: xu-cheng/texlive-action@v3
+        with:
+            run: |
+                cd SMDExplorer-Documentation/docs/build/tex_en
+                export XINDYOPTS="-L english -C utf8  -M sphinx.xdy"
+                latexmk -pdf -dvi- -ps-
+                mv smdexplorer.pdf smdexplorer_en.pdf
+                cd ../tex_ja
+                export XINDYOPTS=""
+                latexmk -r latexmkjarc -pdfdvi -dvi- -ps-
+                mv smdexplorer.pdf smdexplorer_ja.pdf
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        id: artifact-upload-step
+        with:
+          name: tex
+          path: |
+            ./SMDExplorer-Documentation/docs/build/tex_en
+            ./SMDExplorer-Documentation/docs/build/tex_ja
+          overwrite: true
+          retention-days: 1

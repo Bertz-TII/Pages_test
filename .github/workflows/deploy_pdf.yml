@@ -4,13 +4,15 @@
 # documentation.
 
 # Sample workflow for building and deploying a Jekyll site to GitHub Pages
-name: Deploy HTML site to Pages
+name: Deploy HTML including PDF site to Pages
 
 on:
   # Runs on pushes targeting the default branch
   # push:
   #   branches: ["main"]
-
+  # pull_request:
+  #   branches:
+  #     - main
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -50,13 +52,39 @@ jobs:
           cd SMDExplorer-Documentation
           ls
           pip install -r requirements.txt
-       
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: latest
+          
+      - name: build_tex
+        run: |
+          sudo apt-get install texlive-extra-utils
+          
+          npm install -g @mermaid-js/mermaid-cli
+          cd SMDExplorer-Documentation/docs/source
+          
+          sphinx-build -E -b latex -D language=en -D latex_engine=lualatex . ../build/tex_en
+          sphinx-build -E -b latex -D language=ja -D latex_engine=uplatex . ../build/tex_ja
+
+      - uses: xu-cheng/texlive-action@v3
+        with:
+            run: |
+                cd SMDExplorer-Documentation/docs/build/tex_en
+                export XINDYOPTS="-L english -C utf8  -M sphinx.xdy"
+                latexmk -pdf -dvi- -ps-
+                mv smdexplorer.pdf ../smdexplorer_en.pdf
+                cd ../tex_ja
+                export XINDYOPTS=""
+                latexmk -r latexmkjarc -pdfdvi -dvi- -ps-
+                mv smdexplorer.pdf ../smdexplorer_ja.pdf
+
       - name: Build HTML
         # Outputs to the './_site' directory by default
         run: |
           ls
           cd SMDExplorer-Documentation
-          python docs/build.py
+          python docs/build_html_pdf.py
 
       - name: Upload artifact
         # Automatically uploads an artifact from the './_site' directory by default
